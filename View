@@ -1,0 +1,68 @@
+import java.util.List;
+import java.util.Scanner;
+
+#public class CalculatorView {
+    private final Scanner scanner = new Scanner(System.in);
+
+    // Отображение меню
+    public void displayMenu() {
+        System.out.println("\n=== КАЛЬКУЛЯТОР (MVC) ===");
+        System.out.println("1. Вычислить выражение");
+        System.out.println("2. Показать историю");
+        System.out.println("3. Сохранить всю историю в файл");
+        System.out.println("4. Сохранить выбранные записи в файл");
+        System.out.println("5. Выход");
+        System.out.print("Выберите действие: ");
+    }
+
+    // Ввод выражения
+    public String getExpression() {
+        System.out.print("Введите выражение: ");
+        return scanner.nextLine();
+    }
+
+    // Вывод результата
+    public void displayResult(String expression, Object result) {
+        System.out.println("Результат: " + expression + " = " + result);
+    }
+
+    // Вывод ошибки
+    public void displayError(String error) {
+        System.out.println("Ошибка: " + error);
+    }
+
+    // Показать историю
+    public void displayHistory(List<String> history) {
+        System.out.println("\n--- ИСТОРИЯ ВЫЧИСЛЕНИЙ ---");
+        for (int i = 0; i < history.size(); i++) {
+            System.out.println(i + ": " + history.get(i));
+        }
+        System.out.println();
+    }
+
+    // Ввод пути для сохранения
+    public String getSavePath() {
+        System.out.print("Введите путь для сохранения (или Enter для стандартного): ");
+        return scanner.nextLine().trim();
+    }
+
+    // Выбор записей для сохранения
+    public List<Integer> getSelectedIndices() {
+        System.out.print("Введите номера записей для сохранения через запятую: ");
+        String input = scanner.nextLine();
+        List<Integer> indices = new ArrayList<>();
+        for (String s : input.split(",")) {
+            try {
+                indices.add(Integer.parseInt(s.trim()));
+            } catch (NumberFormatException e) {
+                System.out.println("Некорректный номер: " + s);
+            }
+        }
+        return indices;
+    }
+
+    // Вывод пути сохранения
+    public void displaySavePath(String path) {
+        System.out.println("История сохранена в: " + path);
+    }
+}

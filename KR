@@ -1,0 +1,62 @@
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+publicpublic class CalculatorModel {
+    private final List<String> history = new ArrayList<>();
+    private final String historyFile = "calc_history.log";
+
+    public ScriptEngine engine = new ScriptEngineManager().getEngineByName("js");
+
+    // Вычисление выражения
+    public Object calculate(String expression) throws ScriptException {
+        // Замена ** на Math.pow для JS-движка
+        String jsExpression = expression.replaceAll("\\*\\*", "Math.pow");
+        Object result = engine.eval(jsExpression);
+        history.add(expression + " = " + result);
+        return result;
+    }
+
+    // Сохранение всей истории в файл
+    public void saveHistory(String filePath) throws IOException {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(filePath))) {
+            for (String entry : history) {
+                writer.println(entry);
+            }
+        }
+    }
+
+    // Сохранение выбранных записей
+    public void saveSelectedHistory(List<Integer> indices, String filePath) throws IOException {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(filePath))) {
+            for (int index : indices) {
+                if (index >= 0 && index < history.size()) {
+                    writer.println(history.get(index));
+                }
+            }
+        }
+    }
+
+    // Загрузка истории при запуске
+    public void loadHistory() {
+        File file = new File(historyFile);
+        if (file.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    history.add(line);
+                }
+            } catch (IOException e) {
+                System.err.println("Ошибка загрузки истории: " + e.getMessage());
+            }
+        }
+    }
+
+    // Получение истории
+    public List<String> getHistory() {
+        return new ArrayList<>(history);
+    }
+}

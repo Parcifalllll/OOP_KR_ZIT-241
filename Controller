@@ -1,0 +1,89 @@
+#import java.io.IOException;
+import java.util.List;
+
+#class CalculatorController {
+    private final CalculatorModel model;
+    private final CalculatorView view;
+
+    public CalculatorController(CalculatorModel model, CalculatorView view) {
+        this.model = model;
+        this.view = view;
+    }
+
+    // Запуск приложения
+    public void run() {
+        model.loadHistory(); // Загрузка истории при старте
+
+        while (true) {
+            view.displayMenu();
+            String choice = view.scanner.nextLine();
+
+            switch (choice) {
+                case "1":
+                    handleCalculation();
+                    break;
+                case "2":
+                    view.displayHistory(model.getHistory());
+                    break;
+                case "3":
+                    handleSaveAllHistory();
+                    break;
+                case "4":
+                    handleSaveSelectedHistory();
+                    break;
+                case "5":
+                    System.out.println("Выход из калькулятора.");
+                    return;
+                default:
+                    view.displayError("Неверный выбор. Попробуйте снова.");
+            }
+        }
+    }
+
+    // Обработка вычисления
+    private void handleCalculation() {
+        try {
+            String expression = view.getExpression();
+            Object result = model.calculate(expression);
+            view.displayResult(expression, result);
+        } catch (Exception e) {
+            view.displayError(e.getMessage());
+        }
+    }
+
+    // Сохранение всей истории
+    private void handleSaveAllHistory() {
+        String path = parseSavePath(view.getSavePath());
+        try {
+            model.saveHistory(path);
+            view.displaySavePath(path);
+        } catch (IOException e) {
+            view.displayError("Ошибка сохранения: " + e.getMessage());
+        }
+    }
+
+    // Сохранение выбранных записей
+    private void handleSaveSelectedHistory() {
+        List<Integer> indices = view.getSelectedIndices();
+        String path = parseSavePath(view.getSavePath());
+        try {
+            model.saveSelectedHistory(indices, path);
+            view.displaySavePath(path);
+        } catch (IOException e) {
+            view.displayError("Ошибка сохранения: " + e.getMessage());
+        }
+    }
+
+    // Парсинг пути сохранения по правилам задания
+    private String parseSavePath(String input) {
+        if (input.isEmpty()) {
+            return model.historyFile; // Стандартный файл
+        } else if (input.contains(".")) {
+            // Файл с расширением в текущей папке
+            return input;
+        } else {
+            // Путь с именем log.log
+            return input + (input.endsWith(File.separator) ? "" : File.separator) + "log.log";
+        }
+    }
+}
